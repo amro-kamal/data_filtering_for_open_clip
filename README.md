@@ -24,10 +24,18 @@ Note: Another way to filter examples is to loop through all examples in the text
 
 
 ## Build trie file
-Assuming you have a list of examples in the format [`"<shard_id/tar/key>"`, `"<shard_id/tar/key>"`, `"<shard_id/tar/key>"`, `"<shard_id/tar/key>"`].
+Assuming you have a list of examples in the format [`"<shard_id/tar/key>"`, `"<shard_id/tar/key>"`, `"<shard_id/tar/key>"`, `"<shard_id/tar/key>"`]. Run the following code to convert the list into a trie structure and store it as a pickle file.
+
+```python
+from build_trie import build_and_save_trie
+list_of_ids = [....]
+trie_file = ".....pickle"
+build_and_save_trie(list_of_ids, trie_file)
+
+```
+
 
 The current version of the code assume that each example has the format `"<shard_id/tar/key>"`. This is hard-coded in the `get_file_id(.)` in `src/training/data.py`
-
 
 ```python
 
@@ -49,15 +57,12 @@ def get_file_id(url, fname):
 
 file_key = get_file_id(url, fname)
 ```
+### IMPOTANT:
+For now, you need to modify the `get_file_id(.)` in `src/training/data.py` to work with your dataset. You simply need to know how the dataset is structured.
+
+TODO-SOON: modify the code, to enable the use to pass this function as a argument instead modifying it inside `src/training/data.py`
 
 
-```python
-from build_trie import build_and_save_trie
-list_of_ids = [....]
-trie_file = ".....pickle"
-build_and_save_trie(list_of_ids, trie_file)
-
-```
 
 ## How to train OpenCLIP on filtered data
 Same as OpenCLIP training script. Use the script below:
@@ -103,4 +108,7 @@ srun --cpu_bind=v --accel-bind=gn python -u src/training/main.py \
 ```
 
 
-### IMPORTANT: To traing without any filtering (whole data), set `PRUNING_RATIO=1.0` and `TRIE_FILE=""`. FULL_DATASET_SIZE is always the size of the total number of examples on the dataset. The code will automatically calculate the size of the dataset after filtering as `PRUNING_RATIO*FULL_DATASET_SIZE`. For example, for LAION-400M, FULL_DATASET_SIZE might be 400000000.
+### IMPORTANT:
+To traing without any filtering (whole data), set `PRUNING_RATIO=1.0` and `TRIE_FILE=""`.
+
+FULL_DATASET_SIZE is always the size of the total number of examples on the dataset. The code will automatically calculate the size of the dataset after filtering as `PRUNING_RATIO*FULL_DATASET_SIZE`. For example, for LAION-400M, FULL_DATASET_SIZE might be 400000000.
