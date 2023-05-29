@@ -304,13 +304,22 @@ def tar_file_iterator(
             ###############
             ###############
             ## -- each example has a unique id (string): "<shard>/<tar>/<key>""
-            file_key = (
-                url.split(".")[0].split("/")[-2][17:] ## -- shard name
-                + "/"
-                + url.split(".")[0].split("/")[-1]    ## -- tar file 
-                + "/"
-                + fname.split(".")[0] ## -- example key
-            )
+            def get_file_id(url, fname):
+                '''
+                url: path to tar file where the example is stored.  This function expects that each url is in this format "LAION/laion2B-en-joined{0..127}/<tar file>"
+                fname: name of the example in the tar file. Each pair of image, text (caption) share the same fname.
+
+                '''
+                file_key = (
+                    url.split(".")[0].split("/")[-2][17:] ## -- shard name
+                    + "/"
+                    + url.split(".")[0].split("/")[-1]    ## -- tar file
+                    + "/"
+                    + fname.split(".")[0] ## -- example key
+                )
+                return file_key
+
+            file_key = get_file_id(url, fname)
             # print('✅❌❌✅', url, fname)
             ###############
             ###############
@@ -324,8 +333,8 @@ def tar_file_iterator(
                 if (isinstance(trie, float) and np.random.random() > trie) or (
                     isinstance(trie, pygtrie.StringTrie)
                     and not trie_search(trie, file_key, prune_ratio)
-                ): 
-                    
+                ):
+
                     # print("❌❌ skip ", file_key, url, fname) ## -- Use this line for debugging
                     continue
 
